@@ -11,9 +11,15 @@ Servo servo_2;
 Servo servo_3;
 Servo servo_4;
 
+// Setup del stepper
+#include <Stepper.h>
+const int stepsPerRevolution = 200;
+Stepper myStepper(stepsPerRevolution, 4, 5, 6, 7);
+
 void setup() {
  Serial.begin(9600);
-
+// set the stepper speed |  at 60 rpm:
+  myStepper.setSpeed(60);
  // servos a los puertos 9,10,11,12
   servo_1.attach(9, 500, 2500);
   servo_2.attach(10, 500, 2500);
@@ -83,8 +89,15 @@ servomotor servo_verde = servomotor(servo_2);
 servomotor servo_azul = servomotor(servo_3);
 servomotor servo_amarillo = servomotor(servo_4);
 
+int direccion = 0;
+
 int R,G,B;
 void loop() {
+  if (direccion < 50){
+    myStepper.step(stepsPerRevolution);}
+  else{
+    myStepper.step(-stepsPerRevolution);}
+  direccion += 1;
   memset(colores, 0, sizeof colores);
   int posA = 90;
   int posB = 160;
@@ -96,9 +109,9 @@ void loop() {
   for(int i = 0; i < 5; i++){
     lect = lectura();
     colores[lect] += 1;
-    maximo = colores[lect];
     if (colores[lect]> maximo){
         maxI = lect;
+        maximo = colores[lect];
       }
     }
   // dependiendo de cual color aparece mas veces en las 5 lecturas, ese es el elegido
