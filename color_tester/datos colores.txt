@@ -1,0 +1,21 @@
+Color nulo:
+RGB < 12
+-----------
+Rojo:
+R >> GB
+Temp: 1500 - 3000 K
+-----------
+Verde:
+G >> RB
+Lux >> RB
+Temp: 4000 - 6500 K
+-----------
+Azul:
+B >> RG
+GB >> Lux
+Temp 10000 - 40000 K
+-----------
+Amarillo:
+RG > B
+Lux > B
+Temp 3000 - 4500 K

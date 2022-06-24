@@ -1,5 +1,6 @@
 // Setup del sensor
 #include "Adafruit_TCS34725.h"
+#include "SafeString.h"
 Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_101MS, TCS34725_GAIN_1X);
 
 // Setup del motor
@@ -41,22 +42,26 @@ void setup() {
 // funcion para leer los colores y retornar el predominante
 // los valores de estos "if" son los que se tienen que modificar para ajustar los colores
 int lectura(){
-  uint16_t R,G,B,C;
+  uint16_t R,G,B,C,colorTemp,lux;
   tcs.getRawData(&R,&G,&B,&C);
-  if(R<10 && G<10 && B<10){
+  colorTemp = tcs.calculateColorTemperature(R, G, B);
+  lux = tcs.calculateLux(R,G,B);
+  if(R<12 && G<12 && B<12){
     return 0;} //oscuro
-  else if(R>200 && G>200 && B>200){
-    return 1;} //claro
-  else if(R> (G+(G/5)) && R >(B+(B/10))){
-    return 2;} //rojo
-  else if((R<35 || R>55) && (G<100 || G>120)&& (G>(R+(R/5)) && G>(B+(B/10)))){ // && (B<30 || B>50) 
-    return 3;} //verde
-  else if(B> (G+(G/5)) && B >(R+(R/5))){
-    return 4;} //azul
-  else if((R<35 || R>55) && (G<100 || G>120) && (R>(B+(B/5))) && G>(B+(B/10))){ //(B<30 || B>50)
-    return 5;} //amarillo
-  else {
-    return 6;} //otro
+  else{
+    if(R>200 && G>200 && B>200){
+      return 1;} //claro
+    else if(R>G || R>B || (1500<colorTemp<3000)){
+      return 2;} //rojo
+    else if(G > R || G > B || lux > R || lux > B || 4000<colorTemp<6500){
+      return 3;} //verde
+    else if(B > R || B > G || G > lux || B > lux || 10000<colorTemp<40000){
+      return 4;} //azul
+    else if(R > B || G > B || lux > B || 3000<colorTemp<4500){
+      return 5;} //amarillo
+    else {
+      return 6;} //otro
+  }
 }
 
 class servomotor{
@@ -92,6 +97,8 @@ servomotor servo_amarillo = servomotor(servo_4);
 int direccion = 0;
 
 int R,G,B;
+int r,g,b; // con MINUSCULAS son las que se modifican para la luz LED
+
 void loop() {
   if (direccion < 50){
     myStepper.step(stepsPerRevolution);}
@@ -117,24 +124,24 @@ void loop() {
   // dependiendo de cual color aparece mas veces en las 5 lecturas, ese es el elegido
   switch(maxI){
       case 0:{
-        Serial.println("--Oscuro");
-        R=0;
-        G=0;
-        B=0;
+        Serial.println("--Negro");
+        r=0;
+        g=0;
+        b=0;
         break;
       }
       case 1:{
         Serial.println("--Claro");
-        R=255;
-        G=255;
-        B=255;
+        r=255;
+        g=255;
+        b=255;
         break;
       }
       case 2:{
         Serial.println("--Rojo");
-        R=255;
-        G=0;
-        B=0;
+        r=255;
+        g=0;
+        b=0;
         
         servo_rojo.abrir_servo();
         delay(100);
@@ -143,9 +150,9 @@ void loop() {
       }
       case 3:{
         Serial.println("--Azul");
-        R=0;
-        G=0;
-        B=255;
+        r=0;
+        g=0;
+        b=255;
 
         servo_azul.abrir_servo();
         delay(100);
@@ -154,9 +161,9 @@ void loop() {
       }
       case 4:{
         Serial.println("--Verde");
-        R=0;
-        G=255;
-        B=0;
+        r=0;
+        g=255;
+        b=0;
 
         servo_verde.abrir_servo();
         delay(100);
@@ -165,9 +172,9 @@ void loop() {
       }
       case 5:{
         Serial.println("--Amarillo");
-        R=255;
-        G=80;
-        B=0;
+        r=255;
+        g=80;
+        b=0;
 
         servo_amarillo.abrir_servo();
         delay(100);
@@ -180,9 +187,9 @@ void loop() {
       }
     }
   // escribimos el color al pin para la luz led
-  analogWrite(11,R);
-  analogWrite(10,G);
-  analogWrite(9,B);
+  analogWrite(11,r);
+  analogWrite(10,g);
+  analogWrite(9,b);
 
   // esperar 2 segundos
   delay(200);
