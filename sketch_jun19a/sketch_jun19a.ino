@@ -65,32 +65,30 @@ int lectura(){
   }
 }
 
-class servomotor{
+class servomotor{ // definimos la clase servomotor
   public:
     bool abierto = false;
-    int posA = 40;
-    int posB = 95;
-    Servo servo_x;
+    int posA = 40; // posicion inicial, grados en los que el servo esta "cerrado"
+    int posB = 95; // posicion final, grados en los que el servo esta "abierto"
+    Servo servo_x; // servo_x es un servo cualquiera
     servomotor(Servo servo_x){
       this->servo_x = servo_x;
-      this->servo_x.write(95);
+      this->servo_x.write(posB); // al principio el servo tiene que estar en la posicion B
     }
     void abrir_servo(){
-      if (!abierto){
-        for (int pos = posA; pos <= posB; pos += 10) {
+      if (!abierto){ // si el servo no esta abierto
+        for (int pos = posA; pos <= posB; pos += 10) { // rotar desde posicion A a posicion B
           servo_x.write(pos);
           delay(100);
           }
       }}
     void cerrar_servo(){
-      if (abierto){
-        for (int pos = posB; pos >= posA; pos -= 10){
+      if (abierto){ // si el servo esta abierto
+        for (int pos = posB; pos >= posA; pos -= 10){ // rotar desde posicion B a posicion A
           servo_x.write(pos);
           delay(15);
           }
-        }
-      }
-    };
+        }}};
 
 servomotor servo_rojo = servomotor(servo_1);
 servomotor servo_verde = servomotor(servo_2);
