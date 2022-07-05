@@ -1,7 +1,8 @@
 #include <Stepper.h>
 
 // Defino el número de pasos
-const int stepsPerRevolution = 2048;
+const int pasosCinta = 2048;
+const int pasosTapas = 2048;
 
 // Conexiones
 // Pin 8/4 to IN1 
@@ -10,12 +11,13 @@ const int stepsPerRevolution = 2048;
 // Pin 11/7 to IN4 
 
 // Creamos el objeto
-Stepper myStepper = Stepper(stepsPerRevolution, 4, 6, 5, 7);
+Stepper cinta = Stepper(pasosCinta, 4, 6, 5, 7);
+Stepper tapitas = Stepper(pasosTapas,8,10,9,11);
 
 void setup() {
   // rapidez de giro en rpm
-  myStepper.setSpeed(16);
-  
+  cinta.setSpeed(16);
+  tapitas.setSpeed(16);
   // Comunicación serial
   Serial.begin(9600);
 }
@@ -28,6 +30,7 @@ void loop() {
   
   // Paso antihorario
   //Serial.println("counterclockwise");
-  myStepper.step(-stepsPerRevolution);
+  cinta.step(-pasosCinta);
+  //tapitas.step(-pasosTapas);
   //delay(500);
 }

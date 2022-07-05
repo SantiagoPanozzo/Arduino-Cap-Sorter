@@ -12,15 +12,22 @@ Servo servo_2;
 Servo servo_3;
 Servo servo_4;
 
+// Timings de los servos
+
+unsigned long timerRojo // en ms
+unsigned long timerVerde // en ms
+unsigned long timerAzul // en ms
+unsigned long timerAmarillo // en ms 
+
 // Setup del stepper
 #include <Stepper.h>
 const int stepsPerRevolution = 2048;
-Stepper myStepper(stepsPerRevolution, 4, 6, 5, 7);
+Stepper organizador(stepsPerRevolution, 4, 6, 5, 7);
 
 void setup() {
  Serial.begin(9600);
-// set the stepper speed |  at 60 rpm:
-  myStepper.setSpeed(16);
+// set the stepper speed at 16 rpm:
+  organizador.setSpeed(16);
  // servos a los puertos 9,10,11,12
   servo_1.attach(9, 500, 2500);
   servo_2.attach(10, 500, 2500);
@@ -88,7 +95,10 @@ class servomotor{ // definimos la clase servomotor
           servo_x.write(pos);
           delay(15);
           }
-        }}};
+        }
+      }
+    };
+    
 
 servomotor servo_rojo = servomotor(servo_1);
 servomotor servo_verde = servomotor(servo_2);
@@ -102,9 +112,34 @@ int r,g,b; // con MINUSCULAS son las que se modifican para la luz LED
 
 void loop() {
   if (direccion < 50){
-    myStepper.step(stepsPerRevolution);}
+    organizador.step(stepsPerRevolution);}
   else{
-    myStepper.step(-stepsPerRevolution);}
+    organizador.step(-stepsPerRevolution);}
+
+  if (millis() == timerRojo){
+    servo_rojo.abrir_servo();
+    delay(100);
+    servo_rojo.cerrar_servo();
+  }
+
+  if (millis() == timerVerde){
+    servo_verde.abrir_servo();
+    delay(100);
+    servo_verde.cerrar_servo();
+  }
+
+  if (millis() == timerAzul){
+    servo_azul.abrir_servo();
+    delay(100);
+    servo_azul.cerrar_servo();
+  }
+  
+  if (millis() == timerAmarillo){
+    servo_amarillo.abrir_servo();
+    delay(100);
+    servo_amarillo.cerrar_servo();
+  }
+  
   direccion += 1;
   memset(colores, 0, sizeof colores);
   int posA = 90;
@@ -143,10 +178,7 @@ void loop() {
         r=255;
         g=0;
         b=0;
-        
-        servo_rojo.abrir_servo();
-        delay(100);
-        servo_rojo.cerrar_servo();
+        timerRojo = millis() + 10000UL // tiempo que tarda en llegar en milisegundos  
         break;
       }
       case 3:{
@@ -154,10 +186,7 @@ void loop() {
         r=0;
         g=255;
         b=0;
-
-        servo_verde.abrir_servo();
-        delay(100);
-        servo_verde.cerrar_servo();
+        timerVerde = millis() + 10000UL // tiempo que tarda en llegar en milisegundos
         break;
       }
       case 4:{
@@ -165,10 +194,7 @@ void loop() {
         r=0;
         g=0;
         b=255;
-
-        servo_azul.abrir_servo();
-        delay(100);
-        servo_azul.cerrar_servo();
+        timerAzul = millis() + 1000UL // tiempo que tarda en llegar en milisegundos
         break;
       }
       
@@ -177,10 +203,7 @@ void loop() {
         r=255;
         g=80;
         b=0;
-
-        servo_amarillo.abrir_servo();
-        delay(100);
-        servo_amarillo.cerrar_servo();
+        timerAmarillo = millis() + 1000UL // tiempo que tarda en llegar en milisegundos
         break;
       }
       case 6:{
