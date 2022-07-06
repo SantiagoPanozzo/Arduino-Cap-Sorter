@@ -14,10 +14,10 @@ Servo servo_4;
 
 // Timings de los servos
 
-unsigned long timerRojo // en ms
-unsigned long timerVerde // en ms
-unsigned long timerAzul // en ms
-unsigned long timerAmarillo // en ms 
+unsigned long timerRojo; // en ms
+unsigned long timerVerde; // en ms
+unsigned long timerAzul; // en ms
+unsigned long timerAmarillo; // en ms 
 
 // Setup del stepper
 #include <Stepper.h>
@@ -54,18 +54,22 @@ int lectura(){
   colorTemp = tcs.calculateColorTemperature(R, G, B);
   lux = tcs.calculateLux(R,G,B);
   //Serial.println(" R = "+String(R)+ "| G = "+String(G)+ "| B = "+String(B)+ "| Lux = "+String(lux)+"| Temp = "+ String(colorTemp));
-  if(R<12 && G<12 && B<12){
+  if(R<22 && G<22 && B<22){
     return 0;} //oscuro
   else{
     if(R>200 && G>200 && B>200){
       return 1;} //claro
-    else if(R>G && R>B && (1500<colorTemp<3000)){
+    else if(R>G && R>B && (colorTemp>1500 && colorTemp<3000)){
+      Serial.println('rojo');
       return 2;} //rojo
-    else if(G > R && G > B && lux > R && lux > B && 4000<colorTemp<6500){
+    else if(G > R && G > B && lux > R && lux > B && colorTemp>4000 && colorTemp<6500){
+      Serial.println('verde');
       return 3;} //verde
-    else if(B > R && B > G && G > lux && B > lux && 10000<colorTemp<40000){
+    else if(B > R && B > G && G > lux && B > lux && colorTemp > 10000){
+      Serial.println('azul');
       return 4;} //azul
-    else if(R > B && G > B && lux > B && 3000<colorTemp<4500){
+    else if(R > B && G > B && lux > B && colorTemp>3000 && colorTemp<4500){
+      Serial.println('amarillo');
       return 5;} //amarillo
     else {
       return 6;} //otro
@@ -138,7 +142,7 @@ void loop() {
     servo_amarillo.abrir_servo();
     delay(100);
     servo_amarillo.cerrar_servo();
-  }
+  
   
   direccion += 1;
   memset(colores, 0, sizeof colores);
@@ -178,7 +182,7 @@ void loop() {
         r=255;
         g=0;
         b=0;
-        timerRojo = millis() + 10000UL // tiempo que tarda en llegar en milisegundos  
+        timerRojo = millis() + 10000UL; // tiempo que tarda en llegar en milisegundos  
         break;
       }
       case 3:{
@@ -186,7 +190,7 @@ void loop() {
         r=0;
         g=255;
         b=0;
-        timerVerde = millis() + 10000UL // tiempo que tarda en llegar en milisegundos
+        timerVerde = millis() + 10000UL; // tiempo que tarda en llegar en milisegundos
         break;
       }
       case 4:{
@@ -194,7 +198,7 @@ void loop() {
         r=0;
         g=0;
         b=255;
-        timerAzul = millis() + 1000UL // tiempo que tarda en llegar en milisegundos
+        timerAzul = millis() + 1000UL; // tiempo que tarda en llegar en milisegundos
         break;
       }
       
@@ -203,7 +207,7 @@ void loop() {
         r=255;
         g=80;
         b=0;
-        timerAmarillo = millis() + 1000UL // tiempo que tarda en llegar en milisegundos
+        timerAmarillo = millis() + 1000UL; // tiempo que tarda en llegar en milisegundos
         break;
       }
       case 6:{
@@ -221,4 +225,4 @@ void loop() {
 
   // debug:
   // Serial.println(" R = "+String(R)+ " G = "+String(G)+ " B = "+String(B));
-}
+}}

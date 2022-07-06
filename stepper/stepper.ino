@@ -1,8 +1,8 @@
 #include <Stepper.h>
 
 // Defino el número de pasos
-const int pasosCinta = 2048;
-const int pasosTapas = 2048;
+const int pasosCinta = 2500;
+const int pasosTapas = 300;
 
 // Conexiones
 // Pin 8/4 to IN1 
@@ -31,6 +31,6 @@ void loop() {
   // Paso antihorario
   //Serial.println("counterclockwise");
   cinta.step(-pasosCinta);
-  //tapitas.step(-pasosTapas);
+  tapitas.step(-pasosTapas);
   //delay(500);
 }
