@@ -115,7 +115,7 @@ unsigned long timear(unsigned long timerColor[10], unsigned long millisColor){
   for (int i = 0; i < 10; i++){
     if (timerColor[i] < millis()){
       timerColor[i] = millis()+millisColor;
-      return timerColor[10];
+      return timerColor;
       }
     }
   } 
@@ -179,23 +179,23 @@ void loop() {
       }
       case 2:{
         Serial.println("--Rojo");
-        timerRojo[10] = timear(timerRojo[10],millisRojo);
+        timerRojo[10] = timear(timerRojo,millisRojo);
         break;
       }
       case 3:{
         Serial.println("--Verde");
-        timerVerde[10] = timear(timerVerde[10],millisVerde);
+        timerVerde[10] = timear(timerVerde,millisVerde);
         break;
       }
       case 4:{
         Serial.println("--Azul");
-        timerAzul[10] = timear(timerAzul[10],millisAzul);
+        timerAzul[10] = timear(timerAzul,millisAzul);
         break;
       }
       
       case 5:{
         Serial.println("--Amarillo");
-        timerAmarillo[10] = timear(timerAmarillo[10],millisAmarillo);
+        timerAmarillo[10] = timear(timerAmarillo,millisAmarillo);
         break;
       }
       case 6:{
