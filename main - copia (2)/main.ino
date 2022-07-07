@@ -5,6 +5,7 @@ Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_101MS, TCS347
 
 // Setup del motor
 #include <Servo.h>
+int colores[7]={0};
 int pos = 0;
 Servo servo_1;
 Servo servo_2;
@@ -13,21 +14,20 @@ Servo servo_4;
 
 // Timings de los servos
 
-unsigned long timerRojo[10] = {0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL}; // 10 timers por color
-unsigned long timerVerde[10] = {0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL}; 
-unsigned long timerAzul[10] = {0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL}; 
-unsigned long timerAmarillo[10] = {0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL}; 
+unsigned long timerRojo; // en ms
+unsigned long timerVerde; // en ms
+unsigned long timerAzul; // en ms
+unsigned long timerAmarillo; // en ms 
 
-unsigned long millisRojo = 21000UL;
-unsigned long millisVerde = 30000UL;
-unsigned long millisAzul = 45000UL;
-unsigned long millisAmarillo = 63000UL;
-
-// array de colores para medidas
-int colores[7]={0};
+// Setup del stepper
+#include <Stepper.h>
+const int stepsPerRevolution = 2048;
+Stepper organizador(stepsPerRevolution, 4, 6, 5, 7);
 
 void setup() {
  Serial.begin(9600);
+// set the stepper speed at 16 rpm:
+  organizador.setSpeed(16);
  // servos a los puertos 9,10,11,12
   servo_1.attach(9, 500, 2500);
   servo_2.attach(10, 500, 2500);
@@ -109,45 +109,18 @@ servomotor servo_verde = servomotor(servo_2);
 servomotor servo_azul = servomotor(servo_3);
 servomotor servo_amarillo = servomotor(servo_4);
 
+int direccion = 0;
+
 int R,G,B;
-
-unsigned long timear(unsigned long timerColor[10], unsigned long millisColor){
-  for (int i = 0; i < 10; i++){
-    if (timerColor[i] < millis()){
-      timerColor[i] = millis()+millisColor;
-      return timerColor[10];
-      }
-    }
-  } 
-
-bool itsTIME(unsigned long timerColor[10]){
-  for(int i = 0; i < 10; i++){
-    if ((millis() > (timerColor[i] - 150UL)) && (millis() < (timerColor[i] + 150UL))){
-      return true;
-    }
-  }
-}
+int r,g,b; // con MINUSCULAS son las que se modifican para la luz LED
 
 void loop() {
-  //Serial.println(millis());  
+  //Serial.println(millis());
+  
   
   memset(colores, 0, sizeof colores);
-  
-  if (itsTIME(timerRojo)){
-    servo_rojo.abrir_servo();
-    servo_rojo.cerrar_servo();}
-
-  if (itsTIME(timerVerde)){
-      servo_verde.abrir_servo();
-      servo_verde.cerrar_servo();}
-
-  if (itsTIME(timerAzul)){
-      servo_azul.abrir_servo();
-      servo_azul.cerrar_servo();}
-
-  if (itsTIME(timerAmarillo)){
-      servo_amarillo.abrir_servo();
-      servo_amarillo.cerrar_servo();}
+  int posA = 90;
+  int posB = 160;
 
   // bucle que lee 5 veces los colores y los va contando
   int lect;
@@ -171,31 +144,50 @@ void loop() {
   switch(maxI){
       case 0:{
         Serial.println("--Negro");
+        r=0;
+        g=0;
+        b=0;
         break;
       }
       case 1:{
         Serial.println("--Claro");
+        r=255;
+        g=255;
+        b=255;
         break;
       }
       case 2:{
         Serial.println("--Rojo");
-        timerRojo[10] = timear(timerRojo[10],millisRojo);
+        r=255;
+        g=0;
+        b=0;
+        timerRojo = millis() + 21000UL; // tiempo que tarda en llegar en milisegundos  
+        //Serial.println("timer rojo:"+String(timerRojo));
         break;
       }
       case 3:{
         Serial.println("--Verde");
-        timerVerde[10] = timear(timerVerde[10],millisVerde);
+        r=0;
+        g=255;
+        b=0;
+        timerVerde = millis() + 30000UL; // tiempo que tarda en llegar en milisegundos
         break;
       }
       case 4:{
         Serial.println("--Azul");
-        timerAzul[10] = timear(timerAzul[10],millisAzul);
+        r=0;
+        g=0;
+        b=255;
+        timerAzul = millis() + 45000UL; // tiempo que tarda en llegar en milisegundos
         break;
       }
       
       case 5:{
         Serial.println("--Amarillo");
-        timerAmarillo[10] = timear(timerAmarillo[10],millisAmarillo);
+        r=255;
+        g=80;
+        b=0;
+        timerAmarillo = millis() + 63000UL; // tiempo que tarda en llegar en milisegundos
         break;
       }
       case 6:{
@@ -214,6 +206,30 @@ void loop() {
 
   // debug:
   // Serial.println(" R = "+String(R)+ " G = "+String(G)+ " B = "+String(B));
+
+Serial.println(millis());
+if ((millis() > timerRojo-500U) && (millis() < timerRojo+500U)){
+    servo_rojo.abrir_servo();
+    delay(100);
+    servo_rojo.cerrar_servo();
+  }
+
+  if (millis() == timerVerde){
+    servo_verde.abrir_servo();
+    delay(100);
+    servo_verde.cerrar_servo();
+  }
+
+  if (millis() == timerAzul){
+    servo_azul.abrir_servo();
+    delay(100);
+    servo_azul.cerrar_servo();
+  }
+  
+  if (millis() == timerAmarillo){
+    servo_amarillo.abrir_servo();
+    delay(100);
+    servo_amarillo.cerrar_servo();}
 
 }
 //}

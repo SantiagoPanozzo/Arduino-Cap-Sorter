@@ -1,0 +1,4 @@
+declarar todos los millisColor
+funcion que itera
+sumar millisColor a millis
+que los timers funcionen segun la iteracion de los timerColor
