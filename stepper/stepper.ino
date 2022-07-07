@@ -23,14 +23,6 @@ void setup() {
 }
 
 void loop() {
-  // Paso horario
-  //Serial.println("clockwise");
-  //myStepper.step(stepsPerRevolution);
-  //delay(500);
-  
-  // Paso antihorario
-  //Serial.println("counterclockwise");
   cinta.step(-pasosCinta);
   tapitas.step(-pasosTapas);
-  //delay(500);
 }

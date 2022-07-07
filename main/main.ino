@@ -18,10 +18,10 @@ unsigned long timerVerde[10] = {0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL
 unsigned long timerAzul[10] = {0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL}; 
 unsigned long timerAmarillo[10] = {0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL}; 
 
-unsigned long millisRojo = 21000UL;
-unsigned long millisVerde = 30000UL;
-unsigned long millisAzul = 45000UL;
-unsigned long millisAmarillo = 63000UL;
+unsigned long millisRojo = 21000UL; // 210000 milisegundos para que la tapa llegue al destino rojo
+unsigned long millisVerde = 30000UL; // 300000 milisegundos para que la tapa llegue al destino rojo
+unsigned long millisAzul = 45000UL; // 450000 milisegundos para que la tapa llegue al destino rojo
+unsigned long millisAmarillo = 63000UL;// 630000 milisegundos para que la tapa llegue al destino rojo
 
 // array de colores para medidas
 int colores[7]={0};
@@ -33,27 +33,16 @@ void setup() {
   servo_2.attach(10, 500, 2500);
   servo_3.attach(11, 500, 2500);
   servo_4.attach(12, 500, 2500);
-
- /*comprobar conexiones 
- if (tcs.begin()){
-   Serial.println("Inicializando");
-   //delay(2000);
- }
- else{
-   Serial.println("Error");
-   Serial.println("Debe revisar las conexiones");
-   //while(1)delay(500);
- }*/
 }
 
 // funcion para leer los colores y retornar el predominante
 // los valores de estos "if" son los que se tienen que modificar para ajustar los colores
 int lectura(){
-  uint16_t R,G,B,C,colorTemp,lux;
-  tcs.getRawData(&R,&G,&B,&C);
-  colorTemp = tcs.calculateColorTemperature(R, G, B);
-  lux = tcs.calculateLux(R,G,B);
-  Serial.println(" R = "+String(R)+ "| G = "+String(G)+ "| B = "+String(B)+ "| Lux = "+String(lux)+"| Temp = "+ String(colorTemp));
+  uint16_t R,G,B,C,colorTemp,lux; // valores de rojo, verde, azul, temperatura de color y luminosidad
+  tcs.getRawData(&R,&G,&B,&C); // obtener r, g, b
+  colorTemp = tcs.calculateColorTemperature(R, G, B); // obtener temperatura de color
+  lux = tcs.calculateLux(R,G,B); // obtener luminosidad
+  Serial.println(" R = "+String(R)+ "| G = "+String(G)+ "| B = "+String(B)+ "| Lux = "+String(lux)+"| Temp = "+ String(colorTemp)); // para ver los valores que se estan registrando
   if(R<22 && G<22 && B<22){
     return 0;} //oscuro
   else{
@@ -104,48 +93,46 @@ class servomotor{ // definimos la clase servomotor
     };
     
 
-servomotor servo_rojo = servomotor(servo_1);
-servomotor servo_verde = servomotor(servo_2);
-servomotor servo_azul = servomotor(servo_3);
-servomotor servo_amarillo = servomotor(servo_4);
+servomotor servo_rojo = servomotor(servo_1); // el rojo es el servo 1
+servomotor servo_verde = servomotor(servo_2); // el verde es el servo 2
+servomotor servo_azul = servomotor(servo_3); // el azul es el servo 3
+servomotor servo_amarillo = servomotor(servo_4); // el amarillo es el servo 4
 
 int R,G,B;
 
-unsigned long timear(unsigned long timerColor[10], unsigned long millisColor){
-  for (int i = 0; i < 10; i++){
-    if (timerColor[i] < millis()){
-      timerColor[i] = millis()+millisColor;
-      return timerColor;
+unsigned long timear(unsigned long* timerColor, unsigned long millisColor){      // funcion para empezar los timers cuando pasa una tapa
+  for (int i = 0; i < 10; i++){                                                  // timers del 1 al 10
+    if (timerColor[i] < millis()){                                               // si la hora actual es > que la hora del timer, lo podemos sobreescribir
+      timerColor[i] = millis()+millisColor;                                      // el timer es la hora actual + lo que tarda la tapa
+      break;
       }
     }
   } 
 
-bool itsTIME(unsigned long timerColor[10]){
-  for(int i = 0; i < 10; i++){
-    if ((millis() > (timerColor[i] - 150UL)) && (millis() < (timerColor[i] + 150UL))){
+bool itsTIME(unsigned long timerColor[10]){ // funcion para ver si el timer esta terminando
+  for(int i = 0; i < 10; i++){ // timers del 1 al 10
+    if ((millis() > (timerColor[i] - 150UL)) && (millis() < (timerColor[i] + 150UL))){ // si la hora actual es la misma hora que el timer +- 150 ms
       return true;
     }
   }
 }
 
 void loop() {
-  //Serial.println(millis());  
+  memset(colores, 0, sizeof colores); // establecer memoria para el detector de colores
   
-  memset(colores, 0, sizeof colores);
-  
-  if (itsTIME(timerRojo)){
+  if (itsTIME(timerRojo)){ // si algun timer esta en hora, abrir el servo correspondiente
     servo_rojo.abrir_servo();
     servo_rojo.cerrar_servo();}
 
-  if (itsTIME(timerVerde)){
+  if (itsTIME(timerVerde)){ // x2
       servo_verde.abrir_servo();
       servo_verde.cerrar_servo();}
 
-  if (itsTIME(timerAzul)){
+  if (itsTIME(timerAzul)){ // x3
       servo_azul.abrir_servo();
       servo_azul.cerrar_servo();}
 
-  if (itsTIME(timerAmarillo)){
+  if (itsTIME(timerAmarillo)){ // x4
       servo_amarillo.abrir_servo();
       servo_amarillo.cerrar_servo();}
 
@@ -153,67 +140,55 @@ void loop() {
   int lect;
   int maximo, maxI;
   maximo = 0;
-  lect = lectura();
+  lect = lectura(); // lect es el numero que representa un color en lectura()
   Serial.println(lect);
-  if (lect == 0){Serial.println('Negro');}
-  else {Serial.println(lect);
-    for(int i = 0; i < 5; i++){
-      lect = lectura();
-      colores[lect] += 1;
-      if (colores[lect]> maximo){
-          maxI = lect;
-          maximo = colores[lect];
+  if (lect == 0){Serial.println('Negro');} // si es 0, es negro, pasamos
+  else {Serial.println(lect); // si no es 0, es porque paso una tapita, ejecutamos lo siguiente:
+    for(int i = 0; i < 5; i++){ // 5 veces:
+      lect = lectura(); // leemos el color
+      colores[lect] += 1; // sumamos 1 al color que hayamos leido
+      if (colores[lect]> maximo){ // si el color que detectamos es el color que mas veces va apareciendo
+          maxI = lect; // el maximo total es el color que detectamos (este es el que importa despues)
+          maximo = colores[lect]; // el maximo relativo es el color que detectamos tambien
         }
       }
     
   
   // dependiendo de cual color aparece mas veces en las 5 lecturas, ese es el elegido
   switch(maxI){
-      case 0:{
+      case 0:{ // 0 es negro, solo lo mostramos
         Serial.println("--Negro");
         break;
       }
-      case 1:{
+      case 1:{ // 1 es claro/blanco, solo lo mostramos
         Serial.println("--Claro");
         break;
       }
       case 2:{
-        Serial.println("--Rojo");
-        timerRojo[10] = timear(timerRojo,millisRojo);
+        Serial.println("--Rojo"); // 2 es rojo, iniciamos un timer rojo
+        timear(timerRojo,millisRojo);
         break;
       }
       case 3:{
-        Serial.println("--Verde");
-        timerVerde[10] = timear(timerVerde,millisVerde);
+        Serial.println("--Verde"); // 3 es verde, iniciamos un timer verde
+        timear(timerVerde,millisVerde);
         break;
       }
       case 4:{
-        Serial.println("--Azul");
-        timerAzul[10] = timear(timerAzul,millisAzul);
+        Serial.println("--Azul"); // 4 es azul, iniciamos un timer azul
+        timear(timerAzul,millisAzul);
         break;
       }
       
       case 5:{
-        Serial.println("--Amarillo");
-        timerAmarillo[10] = timear(timerAmarillo,millisAmarillo);
+        Serial.println("--Amarillo"); // 5 es amarillo, iniciamos un timer amarillo
+        timear(timerAmarillo,millisAmarillo);
         break;
       }
-      case 6:{
-        Serial.println("--Otro R = "+String(R)+ " G = "+String(G)+ " B = "+String(B));
+      case 6:{ // 6 es si es otro color, solo lo mostramos
+        Serial.println("--Otro R");
         break;
       }
     }
   }
-  // escribimos el color al pin para la luz led
-  /*analogWrite(11,r);
-  analogWrite(10,g);
-  analogWrite(9,b);
-  Serial.println('end');*/
-  // esperar 2 segundos
-  //delay(200);
-
-  // debug:
-  // Serial.println(" R = "+String(R)+ " G = "+String(G)+ " B = "+String(B));
-
 }
-//}
