@@ -100,14 +100,14 @@ servomotor servo_amarillo = servomotor(servo_4);   // el amarillo es el servo 4
 
 int R,G,B;
 
-unsigned long timear(unsigned long* timerColor, unsigned long millisColor){      // funcion para empezar los timers cuando pasa una tapa
+void timear(unsigned long* timerColor, unsigned long millisColor){      // funcion para empezar los timers cuando pasa una tapa
   for (int i = 0; i < 10; i++){                                                  // timers del 1 al 10
     if (timerColor[i] < millis()){                                               // si la hora actual es > que la hora del timer, lo podemos sobreescribir
       timerColor[i] = millis()+millisColor;                                      // el timer es la hora actual + lo que tarda la tapa
       break;
       }
     }
-  } 
+  } 5
 
 bool itsTIME(int i, unsigned long timerColor[10]){ // funcion para ver si el timer esta terminando
     if ((millis() > (timerColor[i] - 150UL)) && (millis() < (timerColor[i] + 150UL))){ // si la hora actual es la misma hora que el timer +- 150 ms
